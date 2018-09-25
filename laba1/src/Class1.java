@@ -15,6 +15,8 @@ public class Class1 {
 
 
     private int left, right;//левая и правая границы участка вычисления(индексы)
+    private double lastLagr;
+    private double lastEps;
 
     public void InputFromFile() throws IOException {
         String path = "laba1\\src\\InputData.txt";
@@ -95,22 +97,31 @@ public class Class1 {
         return top / bot;
     }
 
+    /*
+    * эта функция нуждается в доработке(некрасивая)
+    * */
     private void addNearestPoint() {
         if (right - left != N - 1) {
             if(right == N - 1)
-                left--;
+                addLeft();
             else if(left == 0)
-                right++;
+                addRight();
             else {
                 if(XX_In - x_In.get(left - 1) < x_In.get(right + 1) - XX_In)
-                    left--;
+                    addLeft();
                 else
-                    right ++;
+                    addRight();
             }
             return;
         }
         Exit(Error.IER1);
 
+    }
+    private void addLeft(){
+        left --;
+    }
+    private void addRight(){
+        right++;
     }
 
     private void Exit(Error e) {
@@ -132,12 +143,29 @@ public class Class1 {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        for (int i = 0; i < N; i++){
+            if (x_In.get(i) >= XX_In) {
+                right = i;
+                break;
+            }
+        }
+        for(int i = N - 1 ; i >= 0 ; i --)
+            if (x_In.get(i) <= XX_In) {
+                left = i;
+                break;
+            }
     }
+    public void Calculate() {
+        double newEps = 0, newLagr = 0;
+
+        do{
+
+        }while();
+    }
+
 
     public static void main(String[] args) throws IOException {
         Class1 a = new Class1();
-        a.InputFromFile();
-        a.ErrorFromInput();
+
     }
 }
