@@ -10,4 +10,14 @@ public class Class1 {
     ArrayList<Double> XX_In = new ArrayList<>();
     double EPS;
     int N;
+
+    Class1()
+    {
+        for(Error i : Error.values())
+            System.out.println(i);
+    }
+
+    public static void main(String[] args) {
+        Class1 a = new Class1();
+    }
 }
