@@ -97,13 +97,42 @@ public class Class1 {
 
     private void addNearestPoint() {
         if (right - left != N - 1) {
-
+            if(right == N - 1)
+                left--;
+            else if(left == 0)
+                right++;
+            else {
+                if(XX_In - x_In.get(left - 1) < x_In.get(right + 1) - XX_In)
+                    left--;
+                else
+                    right ++;
+            }
+            return;
         }
+        Exit(Error.IER1);
+
+    }
+
+    private void Exit(Error e) {
+        System.out.print(e);
+        try {
+            PrintWriter brWriter = new PrintWriter("OutData.txt");
+            brWriter.print(e);
+            brWriter.close();
+        } catch (FileNotFoundException e1) {
+            e1.printStackTrace();
+        }
+        System.exit(1);
     }
 
     Class1() {
-        for (Error i : Error.values())
-            System.out.println(i);
+        try {
+            InputFromFile();
+            ErrorFromInput();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public static void main(String[] args) throws IOException {
