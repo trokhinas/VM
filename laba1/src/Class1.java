@@ -76,7 +76,7 @@ public class Class1 {
             Exit(Error.IER0);
         }else
         if (eps>lastEps){
-            Exit(Error.IER1);
+            return true;
         }
         lastEps=eps;
         return false;
