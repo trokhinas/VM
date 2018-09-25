@@ -12,6 +12,8 @@ public class Class1 {
     private double XX_In;
     private double EPS;
     private int N;
+    private double lastLagr;
+    private double lastEps;
 
 
     private int left, right;//левая и правая границы участка вычисления(индексы)
@@ -39,33 +41,52 @@ public class Class1 {
                 i++;
             } else if (i == 2) {
                 Scanner sc = new Scanner(s).useDelimiter(",");
-                XX_In = (Double.parseDouble(sc.next()));
+                N = (int) (Double.parseDouble(sc.next()));
+                i++;
+            }
+            else if (i == 3) {
+                Scanner sc = new Scanner(s).useDelimiter(",");
+                XX_In=(Double.parseDouble(sc.next()));
+                i++;
+            }
+            else if (i == 4) {
+                Scanner sc = new Scanner(s).useDelimiter(",");
+                EPS = (Double.parseDouble(sc.next()));
                 i++;
             }
         }
-        System.out.println(y_In);
     }
 
     public void ErrorFromInput() throws FileNotFoundException {
-        PrintWriter brWriter = new PrintWriter("OutData.txt");
+
         double keepValue;
         keepValue = x_In.get(0);
         for (int i = 1; i < x_In.size(); i++) {
             if (keepValue > x_In.get(i)) {
-                brWriter.print(Error.IER3);
-                brWriter.close();
-                System.out.println(Error.IER3);
-                System.exit(1);
+               Exit(Error.IER3);
             }
             keepValue = x_In.get(i);
         }
         if (XX_In < x_In.get(0) || XX_In > x_In.get(x_In.size() - 1)) {
-            brWriter.print(Error.IER4);
-            brWriter.close();
-            System.out.println(Error.IER4);
-            System.exit(1);
+           Exit(Error.IER4);
         }
     }
+    public boolean CheckAccuracy(double eps,double YY) throws FileNotFoundException {
+        if (eps<EPS){
+            Exit(Error.IER0);
+        }else
+        if (eps>lastEps){
+            Exit(Error.IER1);
+        }
+        lastEps=eps;
+        return false;
+    }
+    public void ModuleNotGood(double ln_1,double ln_2) throws FileNotFoundException {
+        if (ln_1>ln_2){
+            Exit(Error.IER2);
+        }
+    }
+
 
 
     /**
@@ -122,7 +143,7 @@ public class Class1 {
         } catch (FileNotFoundException e1) {
             e1.printStackTrace();
         }
-        System.exit(1);
+        System.exit(e.getCode());
     }
 
     Class1() {
