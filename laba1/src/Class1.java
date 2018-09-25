@@ -25,7 +25,7 @@ public class Class1 {
         int i = 0;
         while (scan.hasNext()) {
             String s = scan.next();
-            System.out.println(s);
+            //System.out.println(s);
             if (i == 0) {
                 Scanner sc = new Scanner(s).useDelimiter(",");
                 //System.out.println(s);
@@ -181,6 +181,7 @@ public class Class1 {
             newLagr = Lagrange();
             lastLagr = newLagr;
             YY = newLagr;
+            System.out.println(YY);
         }while(CheckAccuracy(newEps, YY));
     }
 
