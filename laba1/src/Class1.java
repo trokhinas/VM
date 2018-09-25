@@ -12,8 +12,6 @@ public class Class1 {
     private double XX_In;
     private double EPS;
     private int N;
-    private double lastLagr;
-    private double lastEps;
 
 
     private int left, right;//левая и правая границы участка вычисления(индексы)
@@ -83,11 +81,7 @@ public class Class1 {
         lastEps=eps;
         return false;
     }
-    public void ModuleNotGood(double ln_1,double ln_2) throws FileNotFoundException {
-        if (ln_1>ln_2){
-            Exit(Error.IER2);
-        }
-    }
+
 
 
 
@@ -170,23 +164,29 @@ public class Class1 {
                 break;
             }
         }
-        for(int i = N - 1 ; i >= 0 ; i --)
+        for(int i = N - 1 ; i >= 0 ; i --) {
             if (x_In.get(i) <= XX_In) {
                 left = i;
                 break;
             }
+        }
+
+        lastLagr = Lagrange();
     }
-    public void Calculate() {
-        double newEps = 0, newLagr = 0;
+    public void Calculate() throws FileNotFoundException {
+        double newEps = 0, newLagr = 0, YY = 0;
 
         do{
-
-        }while();
+            addNearestPoint();
+            newLagr = Lagrange();
+            lastLagr = newLagr;
+            YY = newLagr;
+        }while(CheckAccuracy(newEps, YY));
     }
 
 
     public static void main(String[] args) throws IOException {
         Class1 a = new Class1();
-
+        a.Calculate();
     }
 }
