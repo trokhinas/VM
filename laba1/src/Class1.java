@@ -1,76 +1,25 @@
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 
 /**
  * Created by admin on 25.09.2018.
  */
 public class Class1 {
-    private ArrayList<Double> x_In = new ArrayList<>();
-    private ArrayList<Double> y_In = new ArrayList<>();
+    private ArrayList<Double> X = new ArrayList<>();
+    private ArrayList<Double> Y = new ArrayList<>();
     private double XX;
     private double EPS;
     private int N;
 
 
     private int left, right;//левая и правая границы участка вычисления(индексы)
-    private double lastLagr;
+    private double lastLagrange;
     private double lastEps;
 
-    private void InputFromFile() throws IOException {
-        String path = "laba1\\src\\InputData.txt";
-        char c = '\n';
-        Scanner scan = new Scanner(new File(path)).useDelimiter(";");
-        int i = 0;
-        while (scan.hasNext()) {
-            String s = scan.next();
-            //System.out.println(s);
-            if (i == 0) {
-                Scanner sc = new Scanner(s).useDelimiter(",");
-                //System.out.println(s);
-                while (sc.hasNext()) {
-                    x_In.add(Double.parseDouble(sc.next()));
-                }
-                i++;
-            } else if (i == 1) {
-                Scanner sc = new Scanner(s).useDelimiter(",");
-                while (sc.hasNext()) {
-                    y_In.add(Double.parseDouble(sc.next()));
-                }
-                i++;
-            } else if (i == 2) {
-                Scanner sc = new Scanner(s).useDelimiter(",");
-                N = (int) (Double.parseDouble(sc.next()));
-                i++;
-            }
-            else if (i == 3) {
-                Scanner sc = new Scanner(s).useDelimiter(",");
-                XX =(Double.parseDouble(sc.next()));
-                i++;
-            }
-            else if (i == 4) {
-                Scanner sc = new Scanner(s).useDelimiter(",");
-                EPS = (Double.parseDouble(sc.next()));
-                i++;
-            }
-        }
-    }
 
-    private void ErrorFromInput() {
 
-        double keepValue;
-        keepValue = x_In.get(0);
-        for (int i = 1; i < x_In.size(); i++) {
-            if (keepValue > x_In.get(i)) {
-               Exit(Error.IER3);
-            }
-            keepValue = x_In.get(i);
-        }
-        if (XX < x_In.get(0) || XX > x_In.get(x_In.size() - 1)) {
-           Exit(Error.IER4);
-        }
-    }
+
     private boolean CheckAccuracy(double eps) {
         if (eps<lastEps){
             lastEps=eps;
@@ -90,7 +39,7 @@ public class Class1 {
     private double Lagrange() {
         double sum = 0;
         for (int i = left; i <= right; i++)
-            sum += y_In.get(i) * l(i);
+            sum += Y.get(i) * l(i);
         return sum;
     }
 
@@ -99,10 +48,10 @@ public class Class1 {
      * @return значение многочлена степени N
      */
     private double l(int number) {
-        double top = 1, bot = 1, x_k = x_In.get(number);
+        double top = 1, bot = 1, x_k = X.get(number);
         for (int i = left; i <= right; i++) {
             if (i != number) {
-                double x_i = x_In.get(i);
+                double x_i = X.get(i);
                 top *= (XX - x_i);
                 bot *= (x_k - x_i);
             }
@@ -121,7 +70,7 @@ public class Class1 {
             else if(left == 0)
                 addRight();
             else {
-                if (XX - x_In.get(left - 1) < x_In.get(right + 1) - XX)
+                if (XX - X.get(left - 1) < X.get(right + 1) - XX)
                     addLeft();
                 else
                     addRight();
@@ -142,7 +91,7 @@ public class Class1 {
         try {
             PrintWriter brWriter = new PrintWriter("OutData.txt");
             if (e==Error.IER0){
-                brWriter.print(lastLagr + "\n");
+                brWriter.print(lastLagrange + "\n");
             }
             brWriter.print(e);
             brWriter.close();
@@ -153,15 +102,16 @@ public class Class1 {
     }
 
     Class1() {
-        try {
-            InputFromFile();
-            ErrorFromInput();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Data dataFromInput = new Data();
+        X = dataFromInput.getXVector();
+        Y = dataFromInput.getYVector();
+        XX = dataFromInput.getXX();
+        N = dataFromInput.getN();
+        EPS = dataFromInput.getEPS();
+
         left = right = 0;
         for (int i = 0; i < N && right == 0; i++){
-            if (x_In.get(i) >= XX)
+            if (X.get(i) >= XX)
                 right = i;
         }
         left = right - 1;
@@ -171,11 +121,11 @@ public class Class1 {
         double newLagrange = Lagrange();
 
         do{
-            lastLagr = newLagrange;
+            lastLagrange = newLagrange;
             addNearestPoint();
             newLagrange = Lagrange();
-        }while(CheckAccuracy(Math.abs(newLagrange - lastLagr)));
-        System.out.println(lastLagr);
+        }while(CheckAccuracy(Math.abs(newLagrange - lastLagrange)));
+        System.out.println(lastLagrange);
         Exit(Error.IER0);
     }
 
