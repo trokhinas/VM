@@ -9,7 +9,7 @@ import java.util.Scanner;
 public class Class1 {
     private ArrayList<Double> x_In = new ArrayList<>();
     private ArrayList<Double> y_In = new ArrayList<>();
-    private double XX_In;
+    private double XX;
     private double EPS;
     private int N;
 
@@ -18,7 +18,7 @@ public class Class1 {
     private double lastLagr;
     private double lastEps;
 
-    public void InputFromFile() throws IOException {
+    private void InputFromFile() throws IOException {
         String path = "laba1\\src\\InputData.txt";
         char c = '\n';
         Scanner scan = new Scanner(new File(path)).useDelimiter(";");
@@ -46,7 +46,7 @@ public class Class1 {
             }
             else if (i == 3) {
                 Scanner sc = new Scanner(s).useDelimiter(",");
-                XX_In=(Double.parseDouble(sc.next()));
+                XX =(Double.parseDouble(sc.next()));
                 i++;
             }
             else if (i == 4) {
@@ -57,7 +57,7 @@ public class Class1 {
         }
     }
 
-    public void ErrorFromInput() throws FileNotFoundException {
+    private void ErrorFromInput() {
 
         double keepValue;
         keepValue = x_In.get(0);
@@ -67,18 +67,17 @@ public class Class1 {
             }
             keepValue = x_In.get(i);
         }
-        if (XX_In < x_In.get(0) || XX_In > x_In.get(x_In.size() - 1)) {
+        if (XX < x_In.get(0) || XX > x_In.get(x_In.size() - 1)) {
            Exit(Error.IER4);
         }
     }
-    public boolean CheckAccuracy(double eps,double YY) throws FileNotFoundException {
-        if (eps<EPS){
-            Exit(Error.IER0);
-        }else
-        if (eps>lastEps){
+    private boolean CheckAccuracy(double eps) {
+        if (eps<lastEps){
+            lastEps=eps;
             return true;
+        }else if (eps>lastEps){
+            Exit(Error.IER2);
         }
-        lastEps=eps;
         return false;
     }
 
@@ -86,7 +85,7 @@ public class Class1 {
 
 
     /**
-     * @return значение полинома Лагранжа в заданной степени для точки XX_In
+     * @return значение полинома Лагранжа в заданной степени для точки XX
      */
     private double Lagrange() {
         double sum = 0;
@@ -103,9 +102,9 @@ public class Class1 {
         double top = 1, bot = 1, x_k = x_In.get(number);
         for (int i = left; i <= right; i++) {
             if (i != number) {
-                double x = x_In.get(i);
-                top *= (XX_In - x);
-                bot *= (x_k - x);
+                double x_i = x_In.get(i);
+                top *= (XX - x_i);
+                bot *= (x_k - x_i);
             }
 
         }
@@ -122,14 +121,13 @@ public class Class1 {
             else if(left == 0)
                 addRight();
             else {
-                if(XX_In - x_In.get(left - 1) < x_In.get(right + 1) - XX_In)
+                if (XX - x_In.get(left - 1) < x_In.get(right + 1) - XX)
                     addLeft();
                 else
                     addRight();
             }
-            return;
         }
-        Exit(Error.IER1);
+        else Exit(Error.IER1);
 
     }
     private void addLeft(){
@@ -143,6 +141,9 @@ public class Class1 {
         System.out.print(e);
         try {
             PrintWriter brWriter = new PrintWriter("OutData.txt");
+            if (e==Error.IER0){
+                brWriter.print(lastLagr + "\n");
+            }
             brWriter.print(e);
             brWriter.close();
         } catch (FileNotFoundException e1) {
@@ -158,31 +159,24 @@ public class Class1 {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        for (int i = 0; i < N; i++){
-            if (x_In.get(i) >= XX_In) {
+        left = right = 0;
+        for (int i = 0; i < N && right == 0; i++){
+            if (x_In.get(i) >= XX)
                 right = i;
-                break;
-            }
         }
-        for(int i = N - 1 ; i >= 0 ; i --) {
-            if (x_In.get(i) <= XX_In) {
-                left = i;
-                break;
-            }
-        }
+        left = right - 1;
 
-        lastLagr = Lagrange();
     }
     public void Calculate() throws FileNotFoundException {
-        double newEps = 0, newLagr = 0, YY = 0;
+        double newLagrange = Lagrange();
 
         do{
+            lastLagr = newLagrange;
             addNearestPoint();
-            newLagr = Lagrange();
-            lastLagr = newLagr;
-            YY = newLagr;
-            System.out.println(YY);
-        }while(CheckAccuracy(newEps, YY));
+            newLagrange = Lagrange();
+        }while(CheckAccuracy(Math.abs(newLagrange - lastLagr)));
+        System.out.println(lastLagr);
+        Exit(Error.IER0);
     }
 
 
