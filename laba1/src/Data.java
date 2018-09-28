@@ -58,14 +58,8 @@ public class Data {
 
     }
     private void ErrorFromInput() throws IER3, IER4 {
-
-        double keepValue;
-        keepValue = x_In.get(0);
-        for (int i = 1; i < x_In.size(); i++) {
-            if (keepValue > x_In.get(i)) { throw new IER3(Error.IER3.toString()); }
-            keepValue = x_In.get(i);
-        }
-        if (XX < x_In.get(0) || XX > x_In.get(N - 1)) { throw new IER4(Error.IER4.toString()); }
+        if(!Validator.isOrdered(x_In)) throw new IER3(Error.IER3.toString());
+        if (!Validator.isIncluded(x_In, XX))  throw new IER4(Error.IER4.toString());
     }
 
     Data()  {
