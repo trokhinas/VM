@@ -19,6 +19,7 @@ public class Class1 {
 
 
     private int left, right;//левая и правая границы участка вычисления(индексы)
+    private int power = 0;
 
 
     /**
@@ -27,26 +28,27 @@ public class Class1 {
     private double Lagrange() {
         double sum = 0;
         for (int i = left; i <= right; i++)
-            sum += Y.get(i) * l_(i);
+            sum += Y.get(i) * l_(i);//значение полинома Лагранжа = СУММА{i = left..right} f_i*l_i
         System.out.println("L_" + (right - left) + " = " + sum);
+        power++;
         return sum;
     }
     /**
-     * @param number - номер вычисляемого многочлена для полинома Лагранжа number >= 1 && number < N
+     * @param j - номер вычисляемого многочлена для полинома Лагранжа j >= 1 && j < N
      * @return значение многочлена степени N
      */
-    private double l_(int number) {
+    private double l_(int j) {
         StringBuilder Top, Bot;
         Top = new StringBuilder();
         Bot = new StringBuilder();
-        double top = 1, bot = 1, x_k = X.get(number);
+        double top = 1, bot = 1, x_j = X.get(j);
         for (int i = left; i <= right; i++) {
-            if (i != number) {
+            if (i != j) {
                 double x_i = X.get(i);
-                top *= (XX - x_i);
-                bot *= (x_k - x_i);
+                top *= (XX - x_i);//(x - x_i)
+                bot *= (x_j - x_i);//(x_j - x_i)
                 Top.append("(").append(XX).append(" - ").append(x_i).append(")");
-                Bot.append("(").append(x_k).append(" - ").append(x_i).append(")");
+                Bot.append("(").append(x_j).append(" - ").append(x_i).append(")");
             }
 
         }
@@ -60,7 +62,7 @@ public class Class1 {
     * эта функция нуждается в доработке(некрасивая)
     * */
     private void addNearestPoint() throws NotEnoughPointsError {
-        if (right - left != N - 1) {
+        if (power != N - 1) {//power - степень полинома Лагранжа
             if(right == N - 1)
                 addLeft();
             else if(left == 0)
@@ -73,7 +75,6 @@ public class Class1 {
             }
         }
         else throw new NotEnoughPointsError();
-
     }
     private void addLeft(){
         left --;
@@ -82,13 +83,10 @@ public class Class1 {
         right++;
     }
 
-    Class1() {
+    public Class1() {
         Data dataFromInput = new Data(input, output);
-        X = dataFromInput.getXVector();
-        Y = dataFromInput.getYVector();
-        XX = dataFromInput.getXX();
-        N = dataFromInput.getN();
-        EPS = dataFromInput.getEPS();
+        X = dataFromInput.getXVector();Y = dataFromInput.getYVector();
+        XX = dataFromInput.getXX();N = dataFromInput.getN();EPS = dataFromInput.getEPS();
 
         left = right = 0;
         for (int i = 0; i < N && right == 0; i++){
@@ -96,7 +94,6 @@ public class Class1 {
                 right = i;
         }
         left = right - 1;
-
     }
 
 
@@ -105,15 +102,14 @@ public class Class1 {
         double newLagrange = Lagrange(), accuracy;
         Checker checker = new Checker(EPS);
         do {
-            System.out.println(newLagrange);
             double lastLagrange = newLagrange;
-
             addNearestPoint();
             newLagrange = Lagrange();
             accuracy = Math.abs(newLagrange - lastLagrange);
             if (!checker.checkWeakAccuracy(accuracy)) throw new WeakAccuracyError();
         } while (!checker.checkAccuracy(accuracy));
         print(String.valueOf(Error.IER0) + " " + "\nY = " + newLagrange);
+
     }
 
     public void startAlgorithm() {

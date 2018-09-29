@@ -95,20 +95,4 @@ public class Data {
         return EPS;
     }
 
-    public static void main(String[] args) {
-        String inp = "laba1\\src\\InputData.txt";
-        String out = "OutData.txt";
-        Data a = new Data(inp, out);
-
-        for(double x : a.x_In)
-            System.out.print(x + " ");
-        System.out.println();
-        for(double x : a.y_In)
-            System.out.print(x + " ");
-        System.out.println();
-        System.out.println(a.N);
-        System.out.println(a.XX);
-        System.out.println(a.EPS);
-        //System.out.print(a.x_In.size());
-    }
 }
