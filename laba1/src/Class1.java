@@ -28,6 +28,7 @@ public class Class1 {
         double sum = 0;
         for (int i = left; i <= right; i++)
             sum += Y.get(i) * l_(i);
+        System.out.println("L_" + (right - left) + " = " + sum);
         return sum;
     }
     /**
@@ -35,15 +36,23 @@ public class Class1 {
      * @return значение многочлена степени N
      */
     private double l_(int number) {
+        StringBuilder Top, Bot;
+        Top = new StringBuilder();
+        Bot = new StringBuilder();
         double top = 1, bot = 1, x_k = X.get(number);
         for (int i = left; i <= right; i++) {
             if (i != number) {
                 double x_i = X.get(i);
                 top *= (XX - x_i);
                 bot *= (x_k - x_i);
+                Top.append("(").append(XX).append(" - ").append(x_i).append(")");
+                Bot.append("(").append(x_k).append(" - ").append(x_i).append(")");
             }
 
         }
+        System.out.println(Top + " = " + top);
+        System.out.println(Bot + " = " + bot);
+        System.out.println();
         return top / bot;
     }
 
