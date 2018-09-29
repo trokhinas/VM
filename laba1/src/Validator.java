@@ -18,15 +18,12 @@ public class Validator {
         }while (it.hasNext());
         return true;
     }
-    public static boolean isIncluded(List<Double> a, Double x) {//надо поработать
+    public static boolean isIncluded(List<Double> a, Double x) {
+
+        //надо поработать
         //это все происходит при условии что массив упорядочен
+        if(!isOrdered(a)) throw new IllegalArgumentException("Array must be ordered");
         return x >= a.get(0) && x <= a.get(a.size() - 1) && a.size() != 1;
     }
 
-    public static void main(String[] args) {
-        Double a[] = {2.0, -1.0, 0.0, 1.0, 2.0,};
-
-        System.out.print(Validator.isOrdered(Arrays.asList(a)));
-        System.out.print(Validator.isIncluded(Arrays.asList(a), 1.9999999999999999999999999999));
-    }
 }

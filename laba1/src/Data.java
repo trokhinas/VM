@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -14,9 +15,8 @@ public class Data {
     private double EPS;
     private int N;
 
-    private void InputFromFile()
+    private void InputFromFile(String path)
     {
-        String path = "laba1\\src\\InputData.txt";
         Scanner scan;
         try {
             scan = new Scanner(new File(path)).useDelimiter("\n");
@@ -57,16 +57,23 @@ public class Data {
         }
 
     }
-    private void ErrorFromInput() throws IER3, IER4 {
-        if(!Validator.isOrdered(x_In)) throw new IER3(Error.IER3.toString());
-        if (!Validator.isIncluded(x_In, XX))  throw new IER4(Error.IER4.toString());
+    private void ErrorFromInput() throws XIsNotIncludedError, WrongVectorX {
+        if(!Validator.isOrdered(x_In)) throw new WrongVectorX();
+        if (!Validator.isIncluded(x_In, XX))  throw new XIsNotIncludedError();
     }
 
-    Data()  {
-        InputFromFile();
+    public Data(String inputFile, String outputFile)  {
+        InputFromFile(inputFile);
         try {
             ErrorFromInput();
-        } catch (LagrangeError e) {
+        }
+        catch (LagrangeError e) {
+            try {
+                PrintStream ps = new PrintStream(outputFile);
+                e.printStackTrace(ps);
+            } catch (FileNotFoundException e1) {
+                e1.printStackTrace();
+            }
             e.printStackTrace();
             System.exit(e.getCode());
         }
@@ -89,7 +96,9 @@ public class Data {
     }
 
     public static void main(String[] args) {
-        Data a = new Data();
+        String inp = "laba1\\src\\InputData.txt";
+        String out = "OutData.txt";
+        Data a = new Data(inp, out);
 
         for(double x : a.x_In)
             System.out.print(x + " ");

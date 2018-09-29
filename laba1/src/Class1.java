@@ -2,35 +2,23 @@ import java.io.*;
 import java.util.ArrayList;
 
 
+
+
 /**
  * Created by admin on 25.09.2018.
  */
 public class Class1 {
-    private ArrayList<Double> X = new ArrayList<>();
-    private ArrayList<Double> Y = new ArrayList<>();
+    private ArrayList<Double> X;
+    private ArrayList<Double> Y;
     private double XX;
     private double EPS;
     private int N;
 
+    private String input = "laba1\\src\\InputData.txt";
+    private String output = "OutData.txt";
+
 
     private int left, right;//левая и правая границы участка вычисления(индексы)
-    private double lastLagrange;
-    private double lastEps;
-
-
-
-
-    private boolean CheckAccuracy(double eps) {
-        if (eps<lastEps){
-            lastEps=eps;
-            return true;
-        }else if (eps>lastEps){
-            Exit(Error.IER2);
-        }
-        return false;
-    }
-
-
 
 
     /**
@@ -39,15 +27,14 @@ public class Class1 {
     private double Lagrange() {
         double sum = 0;
         for (int i = left; i <= right; i++)
-            sum += Y.get(i) * l(i);
+            sum += Y.get(i) * l_(i);
         return sum;
     }
-
     /**
      * @param number - номер вычисляемого многочлена для полинома Лагранжа number >= 1 && number < N
      * @return значение многочлена степени N
      */
-    private double l(int number) {
+    private double l_(int number) {
         double top = 1, bot = 1, x_k = X.get(number);
         for (int i = left; i <= right; i++) {
             if (i != number) {
@@ -63,7 +50,7 @@ public class Class1 {
     /*
     * эта функция нуждается в доработке(некрасивая)
     * */
-    private void addNearestPoint() {
+    private void addNearestPoint() throws NotEnoughPointsError {
         if (right - left != N - 1) {
             if(right == N - 1)
                 addLeft();
@@ -76,7 +63,7 @@ public class Class1 {
                     addRight();
             }
         }
-        else Exit(Error.IER1);
+        else throw new NotEnoughPointsError();
 
     }
     private void addLeft(){
@@ -86,23 +73,8 @@ public class Class1 {
         right++;
     }
 
-    private void Exit(Error e) {
-        System.out.print(e);
-        try {
-            PrintWriter brWriter = new PrintWriter("OutData.txt");
-            if (e==Error.IER0){
-                brWriter.print(lastLagrange + "\n");
-            }
-            brWriter.print(e);
-            brWriter.close();
-        } catch (FileNotFoundException e1) {
-            e1.printStackTrace();
-        }
-        System.exit(e.getCode());
-    }
-
     Class1() {
-        Data dataFromInput = new Data();
+        Data dataFromInput = new Data(input, output);
         X = dataFromInput.getXVector();
         Y = dataFromInput.getYVector();
         XX = dataFromInput.getXX();
@@ -117,21 +89,53 @@ public class Class1 {
         left = right - 1;
 
     }
-    public void Calculate() throws FileNotFoundException {
-        double newLagrange = Lagrange();
 
-        do{
-            lastLagrange = newLagrange;
+
+
+    private void Calculate() throws NotEnoughPointsError, WeakAccuracyError {
+        double newLagrange = Lagrange(), accuracy;
+        Checker checker = new Checker(EPS);
+        do {
+            System.out.println(newLagrange);
+            double lastLagrange = newLagrange;
+
             addNearestPoint();
             newLagrange = Lagrange();
-        }while(CheckAccuracy(Math.abs(newLagrange - lastLagrange)));
-        System.out.println(lastLagrange);
-        Exit(Error.IER0);
+            accuracy = Math.abs(newLagrange - lastLagrange);
+            if (!checker.checkWeakAccuracy(accuracy)) throw new WeakAccuracyError();
+        } while (!checker.checkAccuracy(accuracy));
+        print(String.valueOf(Error.IER0) + " " + "\nY = " + newLagrange);
+    }
+
+    public void startAlgorithm() {
+        try {
+            Calculate();
+        } catch (LagrangeError notEnoughPointsError) {
+            try {
+                notEnoughPointsError.printStackTrace(new PrintStream(output));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            notEnoughPointsError.printStackTrace();
+        }
+
+    }
+
+
+
+    private void print(String msg) {
+        System.out.print(msg);
+        try {
+            PrintStream ps = new PrintStream(output);
+            ps.print(msg);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
 
     public static void main(String[] args) throws IOException {
         Class1 a = new Class1();
-        a.Calculate();
+        a.startAlgorithm();
     }
 }
