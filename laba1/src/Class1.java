@@ -14,7 +14,7 @@ public class Class1 {
     private double EPS;
     private int N;
 
-    private String input = "laba1\\src\\InputData.txt";
+    private String input = "laba1\\src\\Input";
     private String output = "OutData.txt";
 
 
