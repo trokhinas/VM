@@ -1,12 +1,6 @@
 import java.io.*;
 import java.util.ArrayList;
 
-
-
-
-/**
- * Created by admin on 25.09.2018.
- */
 public class Class1 {
     private ArrayList<Double> X;
     private ArrayList<Double> Y;
@@ -14,12 +8,12 @@ public class Class1 {
     private double EPS;
     private int N;
 
-    private String input = "laba1\\src\\Input";
+    private String input = "laba1\\src\\InputData\\InputData.txt";
     private String output = "OutData.txt";
 
 
     private int left, right;//левая и правая границы участка вычисления(индексы)
-    private int power = 0;
+    private int power = 1;//Степень многолчена Лагранжа = количество_точек - 1
 
 
     /**
@@ -30,7 +24,7 @@ public class Class1 {
         for (int i = left; i <= right; i++)
             sum += Y.get(i) * l_(i);//значение полинома Лагранжа = СУММА{i = left..right} f_i*l_i
         System.out.println("L_" + (right - left) + " = " + sum);
-        power++;
+        System.out.println("---------------------------------------------------------------------");
         return sum;
     }
     /**
@@ -58,11 +52,8 @@ public class Class1 {
         return top / bot;
     }
 
-    /*
-    * эта функция нуждается в доработке(некрасивая)
-    * */
     private void addNearestPoint() throws NotEnoughPointsError {
-        if (power != N - 1) {//power - степень полинома Лагранжа
+        if (power < N - 1) {//power - степень полинома Лагранжа, которая < N
             if(right == N - 1)
                 addLeft();
             else if(left == 0)
@@ -73,6 +64,7 @@ public class Class1 {
                 else
                     addRight();
             }
+            power++;
         }
         else throw new NotEnoughPointsError();
     }
@@ -99,29 +91,39 @@ public class Class1 {
 
 
     private void Calculate() throws NotEnoughPointsError, WeakAccuracyError {
-        double newLagrange = Lagrange(), accuracy;
+        double newLagrange = Lagrange(), accuracy;//сразу же вычисляем значение L_1
         Checker checker = new Checker(EPS);
         do {
             double lastLagrange = newLagrange;
-            addNearestPoint();
-            newLagrange = Lagrange();
-            accuracy = Math.abs(newLagrange - lastLagrange);
+            addNearestPoint();//добавляем точку(если это возможно)
+            newLagrange = Lagrange();//вычисляем значение полином Лагранжа высшей степени
+            accuracy = Math.abs(newLagrange - lastLagrange);//вычисление погрешности
+            //также не учитываем значение погрешности при m < 2
             if (!checker.checkWeakAccuracy(accuracy)) throw new WeakAccuracyError();
         } while (!checker.checkAccuracy(accuracy));
-        print(String.valueOf(Error.IER0) + " " + "\nY = " + newLagrange);
 
+        String msg = "Код ошибки: " + String.valueOf(Error.IER0.getCode()) + '\n'
+                + Error.IER0.toString() + '\n'
+                + "Y = " + newLagrange + '\n'
+                + "Был построен многочлен степени " + power + '\n'
+                + "EPS = " + accuracy;
+        try {
+            PrintStream ps = new PrintStream(output);
+            ps.println(msg);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        System.out.println(msg);
     }
 
     public void startAlgorithm() {
         try {
             Calculate();
-        } catch (LagrangeError notEnoughPointsError) {
-            try {
-                notEnoughPointsError.printStackTrace(new PrintStream(output));
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-            notEnoughPointsError.printStackTrace();
+        } catch (LagrangeError error) {
+            LagrangePrinter lp = new LagrangePrinter(output);
+            try { lp.print(error); }
+            catch (FileNotFoundException e) { e.printStackTrace(); }
+            System.exit(error.getCode());
         }
 
     }
