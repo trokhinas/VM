@@ -1,7 +1,5 @@
 import java.io.File;
 import java.io.FileNotFoundException;
-
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -60,6 +58,10 @@ public class Data {
     private void ErrorFromInput() throws XIsNotIncludedError, WrongVectorX {
         if(!Validator.isOrdered(x_In)) throw new WrongVectorX();
         if (!Validator.isIncluded(x_In, XX))  throw new XIsNotIncludedError();
+        if(N != x_In.size() || N != y_In.size()) {
+            System.out.println("Количество точек, не совпадает с заявленным N ");
+            System.exit(1);
+        }
     }
 
     public Data(String inputFile, String outputFile)  {
@@ -68,13 +70,9 @@ public class Data {
             ErrorFromInput();
         }
         catch (LagrangeError e) {
-            try {
-                PrintStream ps = new PrintStream(outputFile);
-                e.printStackTrace(ps);
-            } catch (FileNotFoundException e1) {
-                e1.printStackTrace();
-            }
-            e.printStackTrace();
+            LagrangePrinter lp = new LagrangePrinter(outputFile);
+            try { lp.print(e); }
+            catch (FileNotFoundException e1) { e1.printStackTrace(); }
             System.exit(e.getCode());
         }
     }
