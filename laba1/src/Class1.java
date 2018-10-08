@@ -8,12 +8,12 @@ public class Class1 {
     private double EPS;
     private int N;
 
-    private String input = "laba1\\src\\InputData\\InputData.txt";
+    private String input = "laba1\\src\\InputData\\XIsNotIncluded";
     private String output = "OutData.txt";
 
 
     private int left, right;//левая и правая границы участка вычисления(индексы)
-    private int power = 1;//Степень многолчена Лагранжа = количество_точек - 1
+    private int power = 0;//Степень многолчена Лагранжа = количество_точек - 1
 
 
     /**
@@ -23,7 +23,7 @@ public class Class1 {
         double sum = 0;
         for (int i = left; i <= right; i++)
             sum += Y.get(i) * l_(i);//значение полинома Лагранжа = СУММА{i = left..right} f_i*l_i
-        System.out.println("L_" + (right - left) + " = " + sum);
+        System.out.println("L_" + (power) + " = " + sum);
         System.out.println("---------------------------------------------------------------------");
         return sum;
     }
@@ -53,7 +53,10 @@ public class Class1 {
     }
 
     private void addNearestPoint() throws NotEnoughPointsError {
-        if (power < N - 1) {//power - степень полинома Лагранжа, которая < N
+        //power - степень полинома Лагранжа, которая < N - 1
+        //а так как при добавлении точки степень растет, то (power + 1)
+        // также должна удовлетворять условию
+        if (power + 1 < N - 1) {
             if(right == N - 1)
                 addLeft();
             else if(left == 0)
@@ -80,6 +83,8 @@ public class Class1 {
         X = dataFromInput.getXVector();Y = dataFromInput.getYVector();
         XX = dataFromInput.getXX();N = dataFromInput.getN();EPS = dataFromInput.getEPS();
 
+        //на данном этапе, мы точно знаем, что у нас есть как минимум 2 различных точки
+        // и ХХ попадает в отрезок
         left = right = 0;
         for (int i = 0; i < N && right == 0; i++){
             if (X.get(i) >= XX)
@@ -91,15 +96,16 @@ public class Class1 {
 
 
     private void Calculate() throws NotEnoughPointsError, WeakAccuracyError {
-        double newLagrange = Lagrange(), accuracy;//сразу же вычисляем значение L_1
+        double newLagrange = Lagrange(), accuracy;//сразу же вычисляем значение L_0
         Checker checker = new Checker(EPS);
         do {
             double lastLagrange = newLagrange;
-            addNearestPoint();//добавляем точку(если это возможно)
-            newLagrange = Lagrange();//вычисляем значение полином Лагранжа высшей степени
-            accuracy = Math.abs(Math.abs(newLagrange) - Math.abs(lastLagrange));//вычисление погрешности
-            //также не учитываем значение погрешности при m < 2
-            if (!checker.checkWeakAccuracy(accuracy)) throw new WeakAccuracyError();
+            addNearestPoint();
+            newLagrange = Lagrange();
+            accuracy = Math.abs(newLagrange - lastLagrange);
+
+            if (!checker.checkWeakAccuracy(accuracy))
+                throw new WeakAccuracyError();
         } while (!checker.checkAccuracy(accuracy));
 
         String msg = "Код ошибки: " + String.valueOf(Error.IER0.getCode()) + '\n'

@@ -16,20 +16,19 @@ public class Checker {
 
     public boolean checkWeakAccuracy(double newAccuracy) {
 
+        boolean result = true;
+        System.out.println("E_" + m + " = " + newAccuracy);
         if(m < 2) {
             System.out.println("There is no compare because m = " + m);
-            System.out.println(newAccuracy);
-            m++;
-            lastAccuracy = newAccuracy;
-            return true;
         }
         else {
             System.out.println("There is compare because m = " + m);
-            System.out.println(newAccuracy);
-            boolean result = newAccuracy < lastAccuracy;
-            lastAccuracy = newAccuracy;
-            return  result;//true - is ok otherwise is bad
+            System.out.println("E_" + (m - 1) + " = " + lastAccuracy);
+            result = newAccuracy < lastAccuracy;
         }
+        lastAccuracy = newAccuracy;
+        m++;
+        return result;
     }
     public boolean checkAccuracy(double newAccuracy) {
         return newAccuracy < EPS;
