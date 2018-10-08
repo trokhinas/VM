@@ -31,7 +31,7 @@ public class Checker {
         return result;
     }
     public boolean checkAccuracy(double newAccuracy) {
-        return newAccuracy < EPS;
+        return m  >= 2 && newAccuracy < EPS;
     }
 
 

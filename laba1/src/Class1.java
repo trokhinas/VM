@@ -8,7 +8,7 @@ public class Class1 {
     private double EPS;
     private int N;
 
-    private String input = "laba1\\src\\InputData\\XIsNotIncluded";
+    private String input = "laba1\\src\\InputData\\InputData.txt";
     private String output = "OutData.txt";
 
 
@@ -78,6 +78,24 @@ public class Class1 {
         right++;
     }
 
+    private void printSuccessMessage(String msg) {
+        try {
+            PrintStream ps = new PrintStream(output);
+            ps.println(msg);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        System.out.println(msg);
+    }
+    private String buildSuccessMessage(double accuracy, double newLagrange) {
+        return "Код ошибки: " + String.valueOf(Error.IER0.getCode()) + '\n'
+                + Error.IER0.toString() + '\n'
+                + "Y = " + newLagrange + '\n'
+                + "Был построен многочлен степени " + power + '\n'
+                + "EPS = " + accuracy;
+    }
+
+
     public Class1() {
         Data dataFromInput = new Data(input, output);
         X = dataFromInput.getXVector();Y = dataFromInput.getYVector();
@@ -96,31 +114,23 @@ public class Class1 {
 
 
     private void Calculate() throws NotEnoughPointsError, WeakAccuracyError {
-        double newLagrange = Lagrange(), accuracy;//сразу же вычисляем значение L_0
+        double newLagrange = Lagrange(), lastLagrange, accuracy;
         Checker checker = new Checker(EPS);
         do {
-            double lastLagrange = newLagrange;
+            lastLagrange = newLagrange;
             addNearestPoint();
             newLagrange = Lagrange();
             accuracy = Math.abs(newLagrange - lastLagrange);
-
-            if (!checker.checkWeakAccuracy(accuracy))
-                throw new WeakAccuracyError();
-        } while (!checker.checkAccuracy(accuracy));
-
-        String msg = "Код ошибки: " + String.valueOf(Error.IER0.getCode()) + '\n'
-                + Error.IER0.toString() + '\n'
-                + "Y = " + newLagrange + '\n'
-                + "Был построен многочлен степени " + power + '\n'
-                + "EPS = " + accuracy;
-        try {
-            PrintStream ps = new PrintStream(output);
-            ps.println(msg);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        System.out.println(msg);
+            if(checker.checkAccuracy(accuracy)) {
+                printSuccessMessage(buildSuccessMessage(accuracy, newLagrange));
+                System.exit(0);
+            }
+        }while(checker.checkWeakAccuracy(accuracy));
+        throw new WeakAccuracyError();
     }
+
+
+
 
     public void startAlgorithm() {
         try {
@@ -134,17 +144,6 @@ public class Class1 {
 
     }
 
-
-
-    private void print(String msg) {
-        System.out.print(msg);
-        try {
-            PrintStream ps = new PrintStream(output);
-            ps.print(msg);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
 
 
     public static void main(String[] args) throws IOException {
