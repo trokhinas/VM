@@ -10,9 +10,11 @@ enum Error {
     Error(int i) {
         code = (byte) i;
     }
+
     public int getCode() {
         return code;
     }
+
     @Override
     public String toString() {
         switch(this){

@@ -10,8 +10,9 @@ import java.util.Scanner;
  * Created by admin on 25.09.2018.
  */
 public class Class1 {
-    private ArrayList<Double> x_In = new ArrayList<>();
-    private ArrayList<Double> y_In = new ArrayList<>();
+
+    private ArrayList<Double> vectorX = new ArrayList<>();
+    private ArrayList<Double> vectorY = new ArrayList<>();
     private double XX;
     private double EPS;
     private int N;
@@ -26,31 +27,26 @@ public class Class1 {
     Class1() {
         try {
             inputFromFile(Constants.INPUT_FILE_PATH);
-            ErrorFromInput();
+            validateInput();
         } catch (IOException e) {
             e.printStackTrace();
         }
         left = right = 0;
         for (int i = 0; i < N && right == 0; i++) {
-            if (x_In.get(i) >= XX)
+            if (vectorX.get(i) >= XX)
                 right = i;
         }
         left = right - 1;
 
-        for (Double x : x_In)
+        for (Double x : vectorX)
             System.out.print(x + " ");
         System.out.println();
-        for (Double x : y_In)
+        for (Double x : vectorY)
             System.out.print(x + " ");
         System.out.println();
         System.out.println(XX);
         System.out.println(EPS);
         System.out.println();
-    }
-
-    public static void main(String[] args) throws IOException {
-        Class1 a = new Class1();
-        a.Calculate();
     }
 
     private void inputFromFile(String path) throws IOException {
@@ -87,13 +83,13 @@ public class Class1 {
 
     private void readVectorX(Scanner scanner) {
         while (scanner.hasNext()) {
-            x_In.add(Double.parseDouble(scanner.next()));
+            vectorX.add(Double.parseDouble(scanner.next()));
         }
     }
 
     private void readVectorY(Scanner scanner) {
         while (scanner.hasNext()) {
-            y_In.add(Double.parseDouble(scanner.next()));
+            vectorY.add(Double.parseDouble(scanner.next()));
         }
     }
 
@@ -109,21 +105,21 @@ public class Class1 {
         EPS = (Double.parseDouble(scanner.next()));
     }
 
-    private void ErrorFromInput() {
+    private void validateInput() {
         double keepValue;
-        keepValue = x_In.get(0);
-        for (int i = 1; i < x_In.size(); i++) {
-            if (keepValue > x_In.get(i)) {
+        keepValue = vectorX.get(0);
+        for (int i = 1; i < vectorX.size(); i++) {
+            if (keepValue > vectorX.get(i)) {
                 exit(Error.IER3);
             }
-            keepValue = x_In.get(i);
+            keepValue = vectorX.get(i);
         }
-        if (XX < x_In.get(0) || XX > x_In.get(x_In.size() - 1)) {
+        if (XX < vectorX.get(0) || XX > vectorX.get(vectorX.size() - 1)) {
             exit(Error.IER4);
         }
     }
 
-    private boolean CheckAccuracy(double eps) {
+    private boolean checkAccuracy(double eps) {
         if (eps < lastEps) {
             lastEps = eps;
             return true;
@@ -139,10 +135,9 @@ public class Class1 {
     private double calculateLagrange() {
         double sum = 0;
         for (int i = left; i <= right; i++)
-            sum += y_In.get(i) * l(i);
+            sum += vectorY.get(i) * l(i);
         System.out.println("L_" + (right - left) + " = " + sum);
         return sum;
-
     }
 
     /**
@@ -150,22 +145,21 @@ public class Class1 {
      * @return значение многочлена степени N
      */
     private double l(int number) {
-        StringBuilder Top, Bot;
-        Top = new StringBuilder();
-        Bot = new StringBuilder();
-        double top = 1, bot = 1, x_k = x_In.get(number);
+        StringBuilder topLine = new StringBuilder();
+        StringBuilder bottomLine = new StringBuilder();
+        double top = 1, bot = 1, x_k = vectorX.get(number);
         for (int i = left; i <= right; i++) {
             if (i != number) {
-                double x_i = x_In.get(i);
+                double x_i = vectorX.get(i);
                 top *= (XX - x_i);
                 bot *= (x_k - x_i);
-                Top.append("(").append(XX).append(" - ").append(x_i).append(")");
-                Bot.append("(").append(x_k).append(" - ").append(x_i).append(")");
+                topLine.append("(").append(XX).append(" - ").append(x_i).append(")");
+                bottomLine.append("(").append(x_k).append(" - ").append(x_i).append(")");
             }
 
         }
-        System.out.println(Top + " = " + top);
-        System.out.println(Bot + " = " + bot);
+        System.out.println(topLine + " = " + top);
+        System.out.println(bottomLine + " = " + bot);
         System.out.println();
         return top / bot;
     }
@@ -175,18 +169,21 @@ public class Class1 {
      * */
     private void addNearestPoint() {
         if (right - left != N - 1) {
-            if (right == N - 1)
+            if (shouldAddLeft()) {
                 addLeft();
-            else if (left == 0)
+            } else if (shouldAddRight()) {
                 addRight();
-            else {
-                if (XX - x_In.get(left - 1) < x_In.get(right + 1) - XX)
-                    addLeft();
-                else
-                    addRight();
             }
-        } else exit(Error.IER1);
+        } else
+            exit(Error.IER1);
+    }
 
+    private boolean shouldAddLeft() {
+        return right == N - 1 || XX - vectorX.get(left - 1) < vectorX.get(right + 1) - XX;
+    }
+
+    private boolean shouldAddRight() {
+        return left == 0 || XX - vectorX.get(left - 1) >= vectorX.get(right + 1) - XX;
     }
 
     private void addLeft() {
@@ -212,14 +209,13 @@ public class Class1 {
         System.exit(e.getCode());
     }
 
-    public void Calculate() throws FileNotFoundException {
+    public void calculate() throws FileNotFoundException {
         double newLagrange = calculateLagrange();
-
         do {
             lastLagr = newLagrange;
             addNearestPoint();
             newLagrange = calculateLagrange();
-        } while (CheckAccuracy(Math.abs(newLagrange - lastLagr)));
+        } while (checkAccuracy(Math.abs(newLagrange - lastLagr)));
         System.out.println(newLagrange);
         exit(Error.IER0);
     }
