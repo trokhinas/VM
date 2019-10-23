@@ -13,44 +13,44 @@ public class Class1 {
     private double EPS;
     private int N;
 
-
-    private int left, right;//левая и правая границы участка вычисления(индексы)
+    /**
+     * Левая и правая границы участка вычисления(индексы)
+     */
+    private int left, right;
     private double lastLagr;
     private double lastEps;
 
     private void InputFromFile() throws IOException {
-        String path = "laba1\\src\\InputData.txt";
-        char c = '\n';
-        Scanner scan = new Scanner(new File(path)).useDelimiter(";");
+        String path = Constants.INPUT_FILE_PATH;
+        char c = Constants.NEXT_LINE;
+        Scanner scan = new Scanner(new File(path)).useDelimiter(Constants.DELIMITER_SEMICOLON);
         int i = 0;
         while (scan.hasNext()) {
             String s = scan.next();
             //System.out.println(s);
             if (i == 0) {
-                Scanner sc = new Scanner(s).useDelimiter(",");
+                Scanner sc = new Scanner(s).useDelimiter(Constants.DELIMITER_COMMA);
                 //System.out.println(s);
                 while (sc.hasNext()) {
                     x_In.add(Double.parseDouble(sc.next()));
                 }
                 i++;
             } else if (i == 1) {
-                Scanner sc = new Scanner(s).useDelimiter(",");
+                Scanner sc = new Scanner(s).useDelimiter(Constants.DELIMITER_COMMA);
                 while (sc.hasNext()) {
                     y_In.add(Double.parseDouble(sc.next()));
                 }
                 i++;
             } else if (i == 2) {
-                Scanner sc = new Scanner(s).useDelimiter(",");
+                Scanner sc = new Scanner(s).useDelimiter(Constants.DELIMITER_COMMA);
                 N = (int) (Double.parseDouble(sc.next()));
                 i++;
-            }
-            else if (i == 3) {
-                Scanner sc = new Scanner(s).useDelimiter(",");
-                XX =(Double.parseDouble(sc.next()));
+            } else if (i == 3) {
+                Scanner sc = new Scanner(s).useDelimiter(Constants.DELIMITER_COMMA);
+                XX = (Double.parseDouble(sc.next()));
                 i++;
-            }
-            else if (i == 4) {
-                Scanner sc = new Scanner(s).useDelimiter(",");
+            } else if (i == 4) {
+                Scanner sc = new Scanner(s).useDelimiter(Constants.DELIMITER_COMMA);
                 EPS = (Double.parseDouble(sc.next()));
                 i++;
             }
@@ -58,31 +58,28 @@ public class Class1 {
     }
 
     private void ErrorFromInput() {
-
         double keepValue;
         keepValue = x_In.get(0);
         for (int i = 1; i < x_In.size(); i++) {
             if (keepValue > x_In.get(i)) {
-               Exit(Error.IER3);
+                Exit(Error.IER3);
             }
             keepValue = x_In.get(i);
         }
         if (XX < x_In.get(0) || XX > x_In.get(x_In.size() - 1)) {
-           Exit(Error.IER4);
+            Exit(Error.IER4);
         }
     }
+
     private boolean CheckAccuracy(double eps) {
-        if (eps<lastEps){
-            lastEps=eps;
+        if (eps < lastEps) {
+            lastEps = eps;
             return true;
-        }else if (eps>lastEps){
+        } else if (eps > lastEps) {
             Exit(Error.IER2);
         }
         return false;
     }
-
-
-
 
     /**
      * @return значение полинома Лагранжа в заданной степени для точки XX
@@ -122,13 +119,13 @@ public class Class1 {
     }
 
     /*
-    * эта функция нуждается в доработке(некрасивая)
-    * */
+     * эта функция нуждается в доработке(некрасивая)
+     * */
     private void addNearestPoint() {
         if (right - left != N - 1) {
-            if(right == N - 1)
+            if (right == N - 1)
                 addLeft();
-            else if(left == 0)
+            else if (left == 0)
                 addRight();
             else {
                 if (XX - x_In.get(left - 1) < x_In.get(right + 1) - XX)
@@ -136,14 +133,15 @@ public class Class1 {
                 else
                     addRight();
             }
-        }
-        else Exit(Error.IER1);
+        } else Exit(Error.IER1);
 
     }
-    private void addLeft(){
-        left --;
+
+    private void addLeft() {
+        left--;
     }
-    private void addRight(){
+
+    private void addRight() {
         right++;
     }
 
@@ -151,7 +149,7 @@ public class Class1 {
         System.out.print(e);
         try {
             PrintWriter brWriter = new PrintWriter("OutData.txt");
-            if (e==Error.IER0){
+            if (e == Error.IER0) {
                 brWriter.print(lastLagr + "\n");
             }
             brWriter.print(e);
@@ -170,30 +168,31 @@ public class Class1 {
             e.printStackTrace();
         }
         left = right = 0;
-        for (int i = 0; i < N && right == 0; i++){
+        for (int i = 0; i < N && right == 0; i++) {
             if (x_In.get(i) >= XX)
                 right = i;
         }
         left = right - 1;
 
-        for(Double x : x_In)
+        for (Double x : x_In)
             System.out.print(x + " ");
         System.out.println();
-        for(Double x : y_In)
+        for (Double x : y_In)
             System.out.print(x + " ");
         System.out.println();
         System.out.println(XX);
         System.out.println(EPS);
         System.out.println();
     }
+
     public void Calculate() throws FileNotFoundException {
         double newLagrange = Lagrange();
 
-        do{
+        do {
             lastLagr = newLagrange;
             addNearestPoint();
             newLagrange = Lagrange();
-        }while(CheckAccuracy(Math.abs(newLagrange - lastLagr)));
+        } while (CheckAccuracy(Math.abs(newLagrange - lastLagr)));
         System.out.println(newLagrange);
         Exit(Error.IER0);
     }
