@@ -1,4 +1,7 @@
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -20,41 +23,90 @@ public class Class1 {
     private double lastLagr;
     private double lastEps;
 
-    private void InputFromFile() throws IOException {
-        String path = Constants.INPUT_FILE_PATH;
-        char c = Constants.NEXT_LINE;
+    Class1() {
+        try {
+            inputFromFile(Constants.INPUT_FILE_PATH);
+            ErrorFromInput();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        left = right = 0;
+        for (int i = 0; i < N && right == 0; i++) {
+            if (x_In.get(i) >= XX)
+                right = i;
+        }
+        left = right - 1;
+
+        for (Double x : x_In)
+            System.out.print(x + " ");
+        System.out.println();
+        for (Double x : y_In)
+            System.out.print(x + " ");
+        System.out.println();
+        System.out.println(XX);
+        System.out.println(EPS);
+        System.out.println();
+    }
+
+    public static void main(String[] args) throws IOException {
+        Class1 a = new Class1();
+        a.Calculate();
+    }
+
+    private void inputFromFile(String path) throws IOException {
         Scanner scan = new Scanner(new File(path)).useDelimiter(Constants.DELIMITER_SEMICOLON);
         int i = 0;
         while (scan.hasNext()) {
             String s = scan.next();
-            //System.out.println(s);
-            if (i == 0) {
-                Scanner sc = new Scanner(s).useDelimiter(Constants.DELIMITER_COMMA);
-                //System.out.println(s);
-                while (sc.hasNext()) {
-                    x_In.add(Double.parseDouble(sc.next()));
+            Scanner sc = new Scanner(s).useDelimiter(Constants.DELIMITER_COMMA);
+            switch (i) {
+                case 0: {
+                    readVectorX(sc);
+                    break;
                 }
-                i++;
-            } else if (i == 1) {
-                Scanner sc = new Scanner(s).useDelimiter(Constants.DELIMITER_COMMA);
-                while (sc.hasNext()) {
-                    y_In.add(Double.parseDouble(sc.next()));
+                case 1: {
+                    readVectorY(sc);
+                    break;
                 }
-                i++;
-            } else if (i == 2) {
-                Scanner sc = new Scanner(s).useDelimiter(Constants.DELIMITER_COMMA);
-                N = (int) (Double.parseDouble(sc.next()));
-                i++;
-            } else if (i == 3) {
-                Scanner sc = new Scanner(s).useDelimiter(Constants.DELIMITER_COMMA);
-                XX = (Double.parseDouble(sc.next()));
-                i++;
-            } else if (i == 4) {
-                Scanner sc = new Scanner(s).useDelimiter(Constants.DELIMITER_COMMA);
-                EPS = (Double.parseDouble(sc.next()));
-                i++;
+                case 2: {
+                    readN(sc);
+                    break;
+                }
+                case 3: {
+                    readXX(sc);
+                    break;
+                }
+                case 4: {
+                    readEps(sc);
+                    break;
+                }
             }
+            i++;
         }
+    }
+
+    private void readVectorX(Scanner scanner) {
+        while (scanner.hasNext()) {
+            x_In.add(Double.parseDouble(scanner.next()));
+        }
+    }
+
+    private void readVectorY(Scanner scanner) {
+        while (scanner.hasNext()) {
+            y_In.add(Double.parseDouble(scanner.next()));
+        }
+    }
+
+    private void readN(Scanner scanner) {
+        N = (int) (Double.parseDouble(scanner.next()));
+    }
+
+    private void readXX(Scanner scanner) {
+        XX = (Double.parseDouble(scanner.next()));
+    }
+
+    private void readEps(Scanner scanner) {
+        EPS = (Double.parseDouble(scanner.next()));
     }
 
     private void ErrorFromInput() {
@@ -62,12 +114,12 @@ public class Class1 {
         keepValue = x_In.get(0);
         for (int i = 1; i < x_In.size(); i++) {
             if (keepValue > x_In.get(i)) {
-                Exit(Error.IER3);
+                exit(Error.IER3);
             }
             keepValue = x_In.get(i);
         }
         if (XX < x_In.get(0) || XX > x_In.get(x_In.size() - 1)) {
-            Exit(Error.IER4);
+            exit(Error.IER4);
         }
     }
 
@@ -76,7 +128,7 @@ public class Class1 {
             lastEps = eps;
             return true;
         } else if (eps > lastEps) {
-            Exit(Error.IER2);
+            exit(Error.IER2);
         }
         return false;
     }
@@ -84,7 +136,7 @@ public class Class1 {
     /**
      * @return значение полинома Лагранжа в заданной степени для точки XX
      */
-    private double Lagrange() {
+    private double calculateLagrange() {
         double sum = 0;
         for (int i = left; i <= right; i++)
             sum += y_In.get(i) * l(i);
@@ -133,7 +185,7 @@ public class Class1 {
                 else
                     addRight();
             }
-        } else Exit(Error.IER1);
+        } else exit(Error.IER1);
 
     }
 
@@ -145,7 +197,7 @@ public class Class1 {
         right++;
     }
 
-    private void Exit(Error e) {
+    private void exit(Error e) {
         System.out.print(e);
         try {
             PrintWriter brWriter = new PrintWriter("OutData.txt");
@@ -160,46 +212,15 @@ public class Class1 {
         System.exit(e.getCode());
     }
 
-    Class1() {
-        try {
-            InputFromFile();
-            ErrorFromInput();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        left = right = 0;
-        for (int i = 0; i < N && right == 0; i++) {
-            if (x_In.get(i) >= XX)
-                right = i;
-        }
-        left = right - 1;
-
-        for (Double x : x_In)
-            System.out.print(x + " ");
-        System.out.println();
-        for (Double x : y_In)
-            System.out.print(x + " ");
-        System.out.println();
-        System.out.println(XX);
-        System.out.println(EPS);
-        System.out.println();
-    }
-
     public void Calculate() throws FileNotFoundException {
-        double newLagrange = Lagrange();
+        double newLagrange = calculateLagrange();
 
         do {
             lastLagr = newLagrange;
             addNearestPoint();
-            newLagrange = Lagrange();
+            newLagrange = calculateLagrange();
         } while (CheckAccuracy(Math.abs(newLagrange - lastLagr)));
         System.out.println(newLagrange);
-        Exit(Error.IER0);
-    }
-
-
-    public static void main(String[] args) throws IOException {
-        Class1 a = new Class1();
-        a.Calculate();
+        exit(Error.IER0);
     }
 }
