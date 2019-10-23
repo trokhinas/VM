@@ -5,11 +5,10 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-
 /**
  * Created by admin on 25.09.2018.
  */
-public class Class1 {
+public class LagrangePolynomialCalculator {
 
     private ArrayList<Double> vectorX = new ArrayList<>();
     private ArrayList<Double> vectorY = new ArrayList<>();
@@ -24,9 +23,13 @@ public class Class1 {
     private double lastLagr;
     private double lastEps;
 
-    Class1() {
+    public LagrangePolynomialCalculator() {
+        this(Constants.INPUT_FILE_PATH);
+    }
+
+    public LagrangePolynomialCalculator(String path) {
         try {
-            inputFromFile(Constants.INPUT_FILE_PATH);
+            inputFromFile(path);
             validateInput();
         } catch (IOException e) {
             e.printStackTrace();
@@ -38,15 +41,18 @@ public class Class1 {
         }
         left = right - 1;
 
-        for (Double x : vectorX)
-            System.out.print(x + " ");
-        System.out.println();
-        for (Double x : vectorY)
-            System.out.print(x + " ");
-        System.out.println();
-        System.out.println(XX);
-        System.out.println(EPS);
-        System.out.println();
+        printResults();
+    }
+
+    public void calculate() {
+        double newLagrange = calculateLagrange();
+        do {
+            lastLagr = newLagrange;
+            addNearestPoint();
+            newLagrange = calculateLagrange();
+        } while (checkAccuracy(Math.abs(newLagrange - lastLagr)));
+        System.out.println(newLagrange);
+        exit(Error.IER0);
     }
 
     private void inputFromFile(String path) throws IOException {
@@ -119,16 +125,6 @@ public class Class1 {
         }
     }
 
-    private boolean checkAccuracy(double eps) {
-        if (eps < lastEps) {
-            lastEps = eps;
-            return true;
-        } else if (eps > lastEps) {
-            exit(Error.IER2);
-        }
-        return false;
-    }
-
     /**
      * @return значение полинома Лагранжа в заданной степени для точки XX
      */
@@ -194,12 +190,45 @@ public class Class1 {
         right++;
     }
 
+    private boolean checkAccuracy(double eps) {
+        if (eps < lastEps) {
+            lastEps = eps;
+            return true;
+        } else if (eps > lastEps) {
+            exit(Error.IER2);
+        }
+        return false;
+    }
+
+    private void printResults() {
+        printDoubleVector(vectorX, Constants.SPACE);
+        printEmptyLine();
+        printDoubleVector(vectorX, Constants.SPACE);
+        printEmptyLine();
+        System.out.println(XX);
+        System.out.println(EPS);
+        printEmptyLine();
+    }
+
+    private void printEmptyLine() {
+        System.out.println();
+    }
+
+    private void printDoubleVector(ArrayList<Double> vector, String delimiter) {
+        System.out.println(
+                vector.stream()
+                        .map(Object::toString)
+                        .reduce((left, right) -> left + delimiter + right)
+                        .orElse(Constants.EMPTY_STRING)
+        );
+    }
+
     private void exit(Error e) {
         System.out.print(e);
         try {
-            PrintWriter brWriter = new PrintWriter("OutData.txt");
+            PrintWriter brWriter = new PrintWriter(Constants.OUTPUT_FILE_PATH);
             if (e == Error.IER0) {
-                brWriter.print(lastLagr + "\n");
+                brWriter.print(lastLagr + Constants.NEXT_LINE);
             }
             brWriter.print(e);
             brWriter.close();
@@ -207,16 +236,5 @@ public class Class1 {
             e1.printStackTrace();
         }
         System.exit(e.getCode());
-    }
-
-    public void calculate() throws FileNotFoundException {
-        double newLagrange = calculateLagrange();
-        do {
-            lastLagr = newLagrange;
-            addNearestPoint();
-            newLagrange = calculateLagrange();
-        } while (checkAccuracy(Math.abs(newLagrange - lastLagr)));
-        System.out.println(newLagrange);
-        exit(Error.IER0);
     }
 }
